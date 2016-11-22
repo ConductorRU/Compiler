@@ -7,4 +7,5 @@
 #include <typeinfo>
 #include <typeindex>
 #include <type_traits>
+#include <functional>
 using namespace std;
