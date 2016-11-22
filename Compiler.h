@@ -1,11 +1,15 @@
 #pragma once
 class Lexer;
 class Syntaxer;
+class Semantic;
+class Coder;
 class Compiler
 {
 private:
 	Lexer *lex;
 	Syntaxer *syn;
+	Semantic *sem;
+	Coder *coder;
 	vector<Operator> _ops;
 	set<string> _keywords;
 	map<string, Type> _types;

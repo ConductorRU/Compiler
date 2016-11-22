@@ -2,10 +2,10 @@
 #include "Struct.h"
 #include "Lexer.h"
 #include "Compiler.h"
-void Lexer::AddWord(string &word)
+void Lexer::AddWord(string &word, int row, int col)
 {
 	if(word.size())
-		_list.push_back(word);
+		_list.push_back({word, row, col});
 	word.clear();
 }
 void Lexer::Compile(const string &code, Compiler *comp)
@@ -15,6 +15,7 @@ void Lexer::Compile(const string &code, Compiler *comp)
 	char c;
 	string s1, s2, s3;
 	bool isLast = false;
+	int col = 1;
 	for(int i = 0; i < size; ++i)
 	{
 		c = code[i];
@@ -37,22 +38,22 @@ void Lexer::Compile(const string &code, Compiler *comp)
 		}
 		if(comp->GetOperator(s3))
 		{
-			AddWord(w);
-			_list.push_back(s3);
+			AddWord(w, col, i);
+			AddWord(s3, col, i);
 			i += 2;
 			w.clear();
 		}
 		else if(comp->GetOperator(s2))
 		{
-			AddWord(w);
-			_list.push_back(s2);
+			AddWord(w, col, i);
+			AddWord(s2, col, i);
 			i += 1;
 			w.clear();
 		}
 		else if(comp->GetOperator(s1))
 		{
-			AddWord(w);
-			_list.push_back(s1);
+			AddWord(w, col, i);
+			AddWord(s1, col, i);
 			w.clear();
 		}
 		else
@@ -61,13 +62,13 @@ void Lexer::Compile(const string &code, Compiler *comp)
 			if(c != ' ')
 				w += c;
 			if(c == ' ' || isLast)
-				AddWord(w);
+				AddWord(w, col, i);
 		}
 	}
 }
 
 void Lexer::Print()
 {
-	for(string &s : _list)
-		cout << s << endl;
+	for(Lexem &s : _list)
+		cout << s.word << endl;
 }

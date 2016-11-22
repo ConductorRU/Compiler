@@ -4,25 +4,27 @@
 #include "Syntaxer.h"
 #include "Compiler.h"
 
-Syntax *Syntaxer::SplitOp(const vector<string> &block, Compiler *comp, int start, int end, int &cur)
+Syntax *Syntaxer::SplitOp(const vector<Lexem> &block, int start, int end, int &cur)
 {
 	int maxPrior = 1000;
 	Operator *rootOp = nullptr;
+	Lexem lexOp;
 	int split = 0;
 	for(int i = start; i < end; ++i)
 	{
-		Operator *op = comp->GetOperator(block[i]);
+		if(block[i].word == ",")
+		{
+			end = i;
+			cur = i;
+			break;
+		}
+		Operator *op = compiler->GetOperator(block[i].word);
 		if(op)
 		{
-			if(op->name == ",")
-			{
-				end = i;
-				cur = i;
-				break;
-			}
 			if(!rootOp || maxPrior < op->prior)
 			{
 				rootOp = op;
+				lexOp = block[i];
 				maxPrior = op->prior;
 				split = i;
 			}
@@ -39,10 +41,11 @@ Syntax *Syntaxer::SplitOp(const vector<string> &block, Compiler *comp, int start
 	if(rootOp)
 	{
 		Syntax *par = new Syntax;
-		par->value = rootOp->name;
+		par->value = lexOp;
 		par->type = SYNTAX_OPERATOR;
-		Syntax *c1 = SplitOp(block, comp, start, split, cur);
-		Syntax *c2 = SplitOp(block, comp, split + 1, end, cur);
+		par->op = rootOp;
+		Syntax *c1 = SplitOp(block, start, split, cur);
+		Syntax *c2 = SplitOp(block, split + 1, end, cur);
 		if(c1)
 		{
 			c1->root = par;
@@ -58,17 +61,18 @@ Syntax *Syntaxer::SplitOp(const vector<string> &block, Compiler *comp, int start
 	return nullptr;
 }
 
-Syntax *Syntaxer::TypeBlock(const vector<string> &block, Compiler *comp)
+Syntax *Syntaxer::TypeBlock(const vector<Lexem> &block, Type *type)
 {
 	int size = block.size();
 	Syntax *parent = new Syntax;
 	parent->type = SYNTAX_TYPENAME;
 	parent->value = block[0];
+	parent->typ = type;
 	bool isComa = false;
 	Syntax *var = nullptr;
 	for(int i = 1; i < size; ++i)
 	{
-		if(comp->IsVarName(block[i]))//if typename
+		if(compiler->IsVarName(block[i].word))//if typename
 		{
 			var = new Syntax;
 			var->value = block[i];
@@ -78,14 +82,14 @@ Syntax *Syntaxer::TypeBlock(const vector<string> &block, Compiler *comp)
 				var->root->childs.push_back(var);
 			isComa = false;
 		}
-		else if(!isComa && block[i] == ",")//if comma
+		else if(!isComa && block[i].word == ",")//if comma
 		{
 			isComa = true;
 		}
-		else if(!isComa && var && block[i] == "=")//if setter
+		else if(!isComa && var && block[i].word == "=")//if setter
 		{
 			++i;
-			Syntax *val = SplitOp(block, comp, i, block.size(), i);
+			Syntax *val = SplitOp(block, i, block.size(), i);
 			if(val)
 			{
 				var->childs.push_back(val);
@@ -99,36 +103,39 @@ Syntax *Syntaxer::TypeBlock(const vector<string> &block, Compiler *comp)
 	}
 	return parent;
 }
-Syntax *Syntaxer::CompileBlock(const vector<string> &block, Compiler *comp)
+Syntax *Syntaxer::CompileBlock(const vector<Lexem> &block)
 {
 	int size = block.size();
 	if(!size)
 		return nullptr;
 	Syntax *parent = nullptr;
-	Type *type = comp->GetType(block[0]);
+	Type *type = compiler->GetType(block[0].word);
 	if(type)
-		parent = TypeBlock(block, comp);
+	{
+		parent = TypeBlock(block, type);
+	}
 	else
 	{
 		int i = 0;
-		parent = SplitOp(block, comp, 0, block.size(), i);
+		parent = SplitOp(block, 0, block.size(), i);
 	}
 	return parent;
 }
 void Syntaxer::Compile(Lexer *lexer, class Compiler *comp)
 {
-	vector<string> list = lexer->GetList();
+	compiler = comp;
+	vector<Lexem> list = lexer->GetList();
 	int size = list.size();
 	string s;
-	vector<string> block;
+	vector<Lexem> block;
 	for(int i = 0; i < size; ++i)
 	{
-		s = list[i];
+		s = list[i].word;
 		if(s != ";")
 			block.push_back(list[i]);
 		else
 		{
-			Syntax *par = CompileBlock(block, comp);
+			Syntax *par = CompileBlock(block);
 			if(par)
 				_root.push_back(par);
 			block.clear();
@@ -139,7 +146,7 @@ void Syntaxer::Print(Syntax *el, int depth)
 {
 	for(int i = 0; i < depth; ++i)
 		cout << "  ";
-	cout << el->value << endl;
+	cout << el->value.word << endl;
 	for(Syntax *s : el->childs)
 		Print(s, depth + 1);
 }

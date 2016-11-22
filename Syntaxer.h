@@ -1,13 +1,15 @@
 #pragma once
 class Lexer;
 class Compiler;
+struct Type;
 class Syntaxer
 {
 private:
 	vector<Syntax*> _root;
-	Syntax *SplitOp(const vector<string> &block, Compiler *comp, int start, int end, int &cur);
-	Syntax *TypeBlock(const vector<string> &block, Compiler *comp);
-	Syntax *CompileBlock(const vector<string> &block, Compiler *comp);
+	Compiler *compiler;
+	Syntax *SplitOp(const vector<Lexem> &block, int start, int end, int &cur);
+	Syntax *TypeBlock(const vector<Lexem> &block, Type *type);
+	Syntax *CompileBlock(const vector<Lexem> &block);
 	void Print(Syntax *el, int depth);
 public:
 	vector<Syntax*> &GetList() { return _root; };

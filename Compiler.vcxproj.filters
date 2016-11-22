@@ -27,10 +27,16 @@
     <ClCompile Include="Syntaxer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Semantyc.cpp">
+    <ClCompile Include="Coder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Coder.cpp">
+    <ClCompile Include="Error.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Script.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Semantic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,13 +56,19 @@
     <ClInclude Include="Syntaxer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Semantyc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Coder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Semantic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

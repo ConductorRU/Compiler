@@ -1,8 +1,10 @@
 #include "stdafx.h"
+#include "Error.h"
 #include "Struct.h"
 #include "Lexer.h"
 #include "Syntaxer.h"
-#include "Semantyc.h"
+#include "Semantic.h"
+#include "Coder.h"
 #include "Compiler.h"
 
 void Compiler::AddType(const string &name, int size)
@@ -11,15 +13,72 @@ void Compiler::AddType(const string &name, int size)
 }
 void Compiler::Init()
 {
+	Error::Init();
 	lex = new Lexer;
 	syn = new Syntaxer;
+	sem = new Semantic;
+	coder = new Coder;
 	_ops.push_back({";", OPERATOR_DELIM, 20});
 	_ops.push_back({",", OPERATOR_DELIM, 17, ASSOC_LEFT_TO_RIGHT});
+
 	_ops.push_back({"=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"+=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"-=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"*=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"/=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"%=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"<<=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({">>=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"&=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"^=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"|=", OPERATOR_BINARY, 15, ASSOC_RIGHT_TO_LEFT});
+
+	_ops.push_back({"||", OPERATOR_BINARY, 14, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"&&", OPERATOR_BINARY, 13, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"|", OPERATOR_BINARY, 12, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"^", OPERATOR_BINARY, 11, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"&", OPERATOR_BINARY, 10, ASSOC_LEFT_TO_RIGHT});
+
+	_ops.push_back({"==", OPERATOR_BINARY, 9, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"!=", OPERATOR_BINARY, 9, ASSOC_LEFT_TO_RIGHT});
+
+	_ops.push_back({"<", OPERATOR_BINARY, 8, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({">", OPERATOR_BINARY, 8, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"<=", OPERATOR_BINARY, 8, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({">=", OPERATOR_BINARY, 8, ASSOC_LEFT_TO_RIGHT});
+
+	_ops.push_back({"<<", OPERATOR_BINARY, 7, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({">>", OPERATOR_BINARY, 7, ASSOC_LEFT_TO_RIGHT});
+
 	_ops.push_back({"+", OPERATOR_BINARY, 6, ASSOC_LEFT_TO_RIGHT});
 	_ops.push_back({"-", OPERATOR_BINARY, 6, ASSOC_LEFT_TO_RIGHT});
-	_ops.push_back({"/", OPERATOR_BINARY, 5, ASSOC_LEFT_TO_RIGHT});
+
 	_ops.push_back({"*", OPERATOR_BINARY, 5, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"/", OPERATOR_BINARY, 5, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"%", OPERATOR_BINARY, 5, ASSOC_LEFT_TO_RIGHT});
+
+	_ops.push_back({"->*", OPERATOR_BINARY, 4, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({".*", OPERATOR_BINARY, 4, ASSOC_LEFT_TO_RIGHT});
+
+	_ops.push_back({"&", OPERATOR_UNARY, 3, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"*", OPERATOR_UNARY, 3, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"!", OPERATOR_UNARY, 3, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"~", OPERATOR_UNARY, 3, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"-", OPERATOR_UNARY, 3, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"+", OPERATOR_UNARY, 3, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"--", OPERATOR_UNARY, 3, ASSOC_RIGHT_TO_LEFT});
+	_ops.push_back({"++", OPERATOR_UNARY, 3, ASSOC_RIGHT_TO_LEFT});
+
+	_ops.push_back({"->", OPERATOR_BINARY, 2, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({".", OPERATOR_BINARY, 2, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"]", OPERATOR_BINARY, 2, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"[", OPERATOR_BINARY, 2, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({")", OPERATOR_BINARY, 2, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"(", OPERATOR_BINARY, 2, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"--", OPERATOR_UNARY, 2, ASSOC_LEFT_TO_RIGHT});
+	_ops.push_back({"++", OPERATOR_UNARY, 2, ASSOC_LEFT_TO_RIGHT});
+
+	_ops.push_back({"::", OPERATOR_BINARY, 1, ASSOC_LEFT_TO_RIGHT});
 	AddType("bool", sizeof(bool));
 	AddType("char", sizeof(char));
 	AddType("uchar", sizeof(unsigned char));
@@ -66,4 +125,8 @@ void Compiler::Compile(const string &code)
 	cout << endl << "Syntax Tree:" << endl;
 	syn->Compile(lex, this);
 	syn->Print();
+	sem->Compile(syn, this);
+	sem->Print();
+	coder->Compile(sem, this);
+	coder->Print();
 }

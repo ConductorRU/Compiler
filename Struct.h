@@ -22,9 +22,21 @@ enum SYNTAX_TYPE
 	SYNTAX_TYPENAME = 5,
 	SYNTAX_CONST = 6,
 };
+enum SEMANTIC_TYPE
+{
+	SEMANTIC_NONE     = 0,
+	SEMANTIC_BLOCK    = 1,
+	SEMANTIC_INITVAR  = 2,
+	SEMANTIC_TYPENAME = 3,
+	SEMANTIC_CONST    = 4,
+	SEMANTIC_FUNCTION = 5,
+	SEMANTIC_VARIABLE = 6,
+};
 struct Lexem
 {
-
+	string word;
+	int row;
+	int col;
 };
 struct Operator
 {
@@ -42,32 +54,35 @@ struct Type
 struct Syntax
 {
 	Syntax *root = nullptr;
+	Operator *op = nullptr;
+	Type *typ = nullptr;
 	vector<Syntax *> childs;
 	SYNTAX_TYPE type = SYNTAX_NONE;
-	string value;
+	Lexem value;
+	void AddChild(Syntax *child) { child->root = this; childs.push_back(child); };
 };
 struct CodeVar
 {
 	int id;
-	string name;
+	Lexem name;
 };
 struct CodeBlock
 {
 	vector<CodeVar*> vars;
-	CodeVar *AddVar(const string &name);
+	CodeVar *AddVar(const Lexem &name);
 };
 struct Semantix
 {
 	Semantix *root = nullptr;
 	vector<Semantix *> childs;
-	SYNTAX_TYPE type = SYNTAX_NONE;
-	union Data
-	{
-		Operator *op;
-		Type *type;
-		CodeVar *var;
-		CodeBlock *block;
-	};
-	Data data = {0};
+	SEMANTIC_TYPE type = SEMANTIC_NONE;
+
+	Operator *op = nullptr;
+	Type *typ = nullptr;
+	CodeVar *var = nullptr;
+	CodeBlock *block = nullptr;
+
+	Lexem lexem;
 	string cData;
+	void AddChild(Semantix *child) { child->root = this; childs.push_back(child);  };
 };

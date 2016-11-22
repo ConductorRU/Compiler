@@ -143,17 +143,21 @@
   <ItemGroup>
     <ClCompile Include="Coder.cpp" />
     <ClCompile Include="Compiler.cpp" />
+    <ClCompile Include="Error.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Semantyc.cpp" />
+    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="Semantic.cpp" />
     <ClCompile Include="Syntaxer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Class.h" />
     <ClInclude Include="Coder.h" />
     <ClInclude Include="Compiler.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="Lexer.h" />
-    <ClInclude Include="Semantyc.h" />
+    <ClInclude Include="Script.h" />
+    <ClInclude Include="Semantic.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="Syntaxer.h" />
