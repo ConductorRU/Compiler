@@ -9,7 +9,7 @@ CodeVar *CodeBlock::AddVar(const Lexem &name)
 	CodeVar *v = new CodeVar;
 	v->name = name;
 	v->id = vars.size();
-	vars.push_back(v);
+	vars[name.word] = v;
 	return v;
 }
 
@@ -33,7 +33,13 @@ Semantix *Semantic::GetValue(Syntax *syn)
 		return Create(syn, SEMANTIC_CONST);
 	if(syn->type == SYNTAX_OPERATOR)
 	{
-
+		if(syn->op->type == OPERATOR_BINARY)
+		{
+			Semantix *x = Create(syn, SEMANTIC_FUNCTION);
+			x->AddChild(GetValue(syn->childs[0]));
+			x->AddChild(GetValue(syn->childs[1]));
+			return x;
+		}
 	}
 	return nullptr;
 }
@@ -41,10 +47,9 @@ Semantix *Semantic::GetValue(Syntax *syn)
 void Semantic::Compile(Syntaxer *syn, Compiler *comp)
 {
 	compiler = comp;
-	block = new CodeBlock;
 	_root = new Semantix;
 	_root->type = SEMANTIC_BLOCK;
-	_root->block = block;
+	_root->block = new CodeBlock;
 	vector<Syntax*> ls = syn->GetList();
 	for(Syntax *s : ls)
 	{
@@ -54,7 +59,7 @@ void Semantic::Compile(Syntaxer *syn, Compiler *comp)
 			for(Syntax *vName : s->childs)
 			{
 				Semantix *vSem = Create(vName, SEMANTIC_VARIABLE);
-				CodeVar *var = block->AddVar(vName->value);
+				CodeVar *var = _root->block->AddVar(vName->value);
 				if(var)
 				{
 					vSem->var = var;

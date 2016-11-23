@@ -18,7 +18,12 @@ Syntax *Syntaxer::SplitOp(const vector<Lexem> &block, int start, int end, int &c
 			cur = i;
 			break;
 		}
-		Operator *op = compiler->GetOperator(block[i].word);
+		bool lPar = false, rPar = false;
+		if(i > start)
+			lPar = compiler->IsVarName(block[i - 1].word);
+		if(i + 1< end)
+			rPar = compiler->IsVarName(block[i + 1].word);
+		Operator *op = compiler->GetOperator(block[i].word, lPar, rPar);
 		if(op)
 		{
 			if(!rootOp || maxPrior < op->prior)

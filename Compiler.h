@@ -16,7 +16,8 @@ private:
 	void AddType(const string &name, int size);
 public:
 	void Init();
-	Operator *GetOperator(const string &val);
+	Operator *GetOperator(const string &val, bool isLeft, bool isRight);
+	bool IsOperator(const string &val);
 	Type *GetType(const string &val);
 	bool IsKeyword(const string &val);
 	bool IsVarName(const string &val);

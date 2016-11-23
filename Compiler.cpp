@@ -91,13 +91,23 @@ void Compiler::Init()
 	AddType("float", sizeof(float));
 	AddType("double", sizeof(double));
 }
-Operator *Compiler::GetOperator(const string &val)
+Operator *Compiler::GetOperator(const string &val, bool isLeft, bool isRight)
 {
 	for(Operator &op : _ops)
-		if(op.name == val)
+		if(op.name == val && ((isLeft && isRight && op.type == OPERATOR_BINARY)
+			|| (isLeft && !isRight && op.type == OPERATOR_UNARY && ASSOC_RIGHT_TO_LEFT)
+			|| (!isLeft && isRight && op.type == OPERATOR_UNARY && ASSOC_LEFT_TO_RIGHT)))
 			return &op;
 	return nullptr;
 }
+bool Compiler::IsOperator(const string &val)
+{
+	for(Operator &op : _ops)
+		if(op.name == val)
+			return true;
+	return false;
+}
+
 Type *Compiler::GetType(const string &val)
 {
 	auto it = _types.find(val);
@@ -114,7 +124,7 @@ bool Compiler::IsKeyword(const string &val)
 }
 bool Compiler::IsVarName(const string &val)
 {
-	if(IsKeyword(val) || GetType(val) || GetOperator(val))
+	if(IsKeyword(val) || GetType(val) || IsOperator(val))
 		return false;
 	return true;
 }
@@ -125,8 +135,10 @@ void Compiler::Compile(const string &code)
 	cout << endl << "Syntax Tree:" << endl;
 	syn->Compile(lex, this);
 	syn->Print();
+	cout << endl << "Semantic Tree:" << endl;
 	sem->Compile(syn, this);
 	sem->Print();
+	cout << endl << "Coder Tree:" << endl;
 	coder->Compile(sem, this);
 	coder->Print();
 }

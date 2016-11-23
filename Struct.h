@@ -68,8 +68,9 @@ struct CodeVar
 };
 struct CodeBlock
 {
-	vector<CodeVar*> vars;
+	map<string, CodeVar*> vars;
 	CodeVar *AddVar(const Lexem &name);
+	CodeVar *GetVar(const string &name) { auto it = vars.find(name); if(it != vars.end()) return it->second; return nullptr; };
 };
 struct Semantix
 {
@@ -85,6 +86,18 @@ struct Semantix
 	Lexem lexem;
 	string cData;
 	void AddChild(Semantix *child) { child->root = this; childs.push_back(child);  };
+	CodeVar *GetVar(const string &name)
+	{
+		Semantix *par = this;
+		CodeVar *var = nullptr;
+		while(par && !var)
+		{
+			if(block)
+				var = block->GetVar(name);
+			par = root;
+		}
+		return var;
+	}
 };
 
 

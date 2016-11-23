@@ -36,21 +36,21 @@ void Lexer::Compile(const string &code, Compiler *comp)
 			s3.push_back(code[i + 1]);
 			s3.push_back(code[i + 2]);
 		}
-		if(comp->GetOperator(s3))
+		if(comp->IsOperator(s3))
 		{
 			AddWord(w, col, i);
 			AddWord(s3, col, i);
 			i += 2;
 			w.clear();
 		}
-		else if(comp->GetOperator(s2))
+		else if(comp->IsOperator(s2))
 		{
 			AddWord(w, col, i);
 			AddWord(s2, col, i);
 			i += 1;
 			w.clear();
 		}
-		else if(comp->GetOperator(s1))
+		else if(comp->IsOperator(s1))
 		{
 			AddWord(w, col, i);
 			AddWord(s1, col, i);
