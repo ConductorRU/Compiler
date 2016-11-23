@@ -8,4 +8,5 @@
 #include <typeindex>
 #include <type_traits>
 #include <functional>
+#include <assert.h>
 using namespace std;

@@ -154,6 +154,7 @@
     <ClInclude Include="Class.h" />
     <ClInclude Include="Coder.h" />
     <ClInclude Include="Compiler.h" />
+    <ClInclude Include="Delegate.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="Script.h" />
